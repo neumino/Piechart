@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Popular tweets for quality movies</title>
+
+    <!-- Goal: Show popular tweets in the area for movies currently in theaters.
+        1) Use the Rotten Tomatoes API to get the movies currently playing in theaters.
+        2) Use the Twitter API to get tweets that are:
+              - the latest
+              - popular
+              - tweeted within 50 miles of SF
+        3) Design and implement a simple interface to show these details.
+    -->
+
+    <!-- Useful information:
+          - Rotten Tomatoes API:
+            * API key: 5z3cghpc45dx9s63czu7tw97
+            * API documentation: http://developer.rottentomatoes.com/iodocs
+            * Since we're not using a server, JSONP calls are required. Use the "callback" parameter for any JSON calls. See "JSONP Support" on http://developer.rottentomatoes.com/docs/read/JSON
+
+          - Twitter API:
+            * No API key required.
+            * API Documentation: https://dev.twitter.com/docs/apis
+            * API Explorer: https://dev.twitter.com/console
+            * Since we're not using a server, JSONP calls are required. Use the "callback" parameter for any JSON calls.
+
+      Tools available (for convenience, use whatever you like):
+        - JQuery: http://docs.jquery.com/Main_Page
+        - CoffeeScript: http://coffeescript.org/
+        - Bootstrap: http://twitter.github.com/bootstrap/
+    -->
+
+
+
+
+
+	<link rel="stylesheet" type="text/css" href="style.css">
+    </script>
+  </head>
+
+  <body>
+    <div id="container">
+		<div id="goal">
+			<h1>RethinkDB - interview</h1>
+			<h2>Goal</h2>
+			<p>Show popular tweets in the area for movies currently in theaters.</p>
+		    <ol>
+				<li>Use the Rotten Tomatoes API to get the movies currently playing in theaters.</li>
+				<li>Use the Twitter API to get tweets that are:
+					<ul>
+						<li>the latest</li>
+						<li>popular</li>
+						<li>tweeted within 50 miles of SF</li>
+					</ul>
+				</li>
+				<li>Design and implement a simple interface to show these details.</li>
+			</ol>
+		</div>
+
+		<div id="results">
+			<h2>Results</h2>
+
+		<div id="movies_wrap">
+			<h3>Movies in theater</h3>
+<ul id="movies_list"><li class="movie" id="movie_0">John Carter</li></ul>
+		</div>
+
+		<div id="tweets_wrap">
+			<h3>Random Tweets</h3>
+<ul id="tweets_list"><li class="tweet" id="movie_0"><img src="http://a0.twimg.com/profile_images/137066138/jr2_normal.jpg"><span class="username">John Rogers</span><p class="tweet">At this point, I genuinely want every human in the US to go see "John Carter" just to shut up the New York Times.</p></li><li class="tweet" id="movie_1"><img src="http://a0.twimg.com/profile_images/1594091057/IMG_0850_normal.JPG"><span class="username">Big Boi of OUTKAST</span><p class="tweet">Jimmy Carter &gt; John Carter</p></li><li class="tweet" id="movie_2"><img src="http://a0.twimg.com/profile_images/1606694663/profilephoto_normal.jpg"><span class="username">Serafina</span><p class="tweet">Instead of going out to see John Carter in the theatres, check out the book it was based on - it's FREE on Kindle! http://t.co/aIw8O0Lj</p></li><li class="tweet" id="movie_3"><img src="http://a0.twimg.com/profile_images/1214817888/1_VdMawsDAAEEHIFVZJPCdws7NA__.128_normal.png"><span class="username">Cesar A Santamaria</span><p class="tweet">@UepaRadioShow Por favor no cometan el mismo error que yo, anoche vi John Carter, es pésima!</p></li><li class="tweet" id="movie_4"><img src="http://a0.twimg.com/profile_images/1696132612/radioragots_normal.png"><span class="username">Radio Ragots</span><p class="tweet">John Carter : Une princesse sexy, un tapis rouge endiablé et une folle aventure http://t.co/In4efV6u</p></li><li class="tweet" id="movie_5"><img src="http://a0.twimg.com/profile_images/1794818366/gabi_normal.jpg"><span class="username">~Gabi Hollais</span><p class="tweet">vou no cinema ver John Carter haha XD</p></li><li class="tweet" id="movie_6"><img src="http://a0.twimg.com/profile_images/94676972/IMG_0286_2_normal.JPG"><span class="username">marusich</span><p class="tweet">'John Carter' Did Not Bomb - The Atlantic http://t.co/QwqDLZeS via @AddThis</p></li><li class="tweet" id="movie_7"><img src="http://a0.twimg.com/profile_images/1566490879/190468_10150126212732580_810047579_6409606_5868500_n_normal.jpg"><span class="username">Sally Simpson</span><p class="tweet">RT @javibeat: Hola, soy John Carter de la tierra. ¿Es usted el titular de la linea?</p></li></ul>
+		</div>
+    </div>
+
+	<footer>rethinkDB</footer>
+  </body>
+</html>
+

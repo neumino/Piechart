@@ -1,0 +1,362 @@
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE":
+ * <orphee@gmail.com> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return. Michel Tu
+ * ----------------------------------------------------------------------------
+ */
+
+
+
+
+var canvas_width = 400;
+var canvas_height = 400;
+
+var center_x = Math.floor(canvas_width/2);
+var center_y = Math.floor(canvas_height/2);
+
+var radius = 150;
+
+var slide = 20;
+var default_margin_left = 20;
+var default_margin_top = 20;
+
+
+var min_color_percent = 0.15;
+var max_color_percent = 0.8;
+
+var min_color_value = Math.floor(min_color_percent*255).toString(16);
+min_color_value = (min_color_value.length == 1) ? "0"+min_color_value : min_color_value;
+var max_color_value = Math.floor(max_color_percent*255).toString(16);
+max_color_value = (max_color_value.length == 1) ? "0"+max_color_value : max_color_value;
+
+
+/**
+ *  Scale the color so it fit between min_color_percent and max_color_percent
+ */
+function scale_color(percentage) {
+	return min_color_percent + (max_color_percent-min_color_percent)*percentage;
+}
+
+
+/* 
+ * Convert a percentage in a color
+ */
+function convert_to_color(percentage) {
+	if (percentage < 1/6) {
+
+
+		var percentage_to_hexa = (Math.floor(scale_color(percentage/(1/6)*255))).toString(16);
+		if (percentage_to_hexa.length == 1) {
+			percentage_to_hexa = "0"+percentage_to_hexa;
+		}
+		return max_color_value+min_color_value+percentage_to_hexa;
+	}
+	else if (percentage < 2/6) {
+		var percentage_to_hexa = (Math.floor(scale_color((2/6-percentage)/(1/6))*255)).toString(16);
+		if (percentage_to_hexa.length == 1) {
+			percentage_to_hexa = "0"+percentage_to_hexa;
+		}
+		return percentage_to_hexa+min_color_value+max_color_value;
+	}
+	else if (percentage < 3/6) {
+		var percentage_to_hexa = (Math.floor(scale_color((percentage-2/6)/(1/6))*255)).toString(16);
+		if (percentage_to_hexa.length == 1) {
+			percentage_to_hexa = "0"+percentage_to_hexa;
+		}
+		return min_color_value+percentage_to_hexa+max_color_value;
+	}
+	else if (percentage < 4/6) {
+		var percentage_to_hexa = (Math.floor(scale_color((4/6-percentage)/(1/6))*255)).toString(16);
+		if (percentage_to_hexa.length == 1) {
+			percentage_to_hexa = "0"+percentage_to_hexa;
+		}
+		return min_color_value+max_color_value+percentage_to_hexa;
+	}
+	else if (percentage < 5/6) {
+		var percentage_to_hexa = (Math.floor(scale_color((percentage-4/6)/(1/6))*255)).toString(16);
+		if (percentage_to_hexa.length == 1) {
+			percentage_to_hexa = "0"+percentage_to_hexa;
+		}
+		return percentage_to_hexa+"ff"+min_color_value;
+	}
+	else if (percentage <=1 ) {
+		var percentage_to_hexa = (Math.floor(scale_color((1-percentage)/(1/6))*255)).toString(16);
+		if (percentage_to_hexa.length == 1) {
+			percentage_to_hexa = "0"+percentage_to_hexa;
+		}
+		return max_color_value+percentage_to_hexa+min_color_value;
+	}
+	else {
+		return max_color_value+min_color_value+min_color_value;
+	}
+}
+
+
+
+/*
+ * The pie
+ */
+pie_chart = function(spec) {
+	spec.pieces = spec.pieces || {};
+	spec.total = spec.total || 0;
+	spec.display = spec.display || null;
+	spec.invert_color = spec.invert_color || false; // to invert color to have better contrast
+
+    var that = {};
+
+	that.add_piece = function(piece){
+		spec.pieces[piece.get_id()] = piece;
+	};
+
+	that.compute_total = function() {
+		var i;
+		spec.total = 0;
+		for(i in spec.pieces) {
+			spec.total += spec.pieces[i].get_value();
+		}
+	};
+
+	/*
+	 * Draw the pie
+	 */
+	that.draw = function() {
+		that.compute_total();
+		var drawn = 0;
+		var i;
+		for(i in spec.pieces) {
+			$("#pie_chart").append("<canvas id=\"canvas_"+spec.pieces[i].get_id()+"\" class=\"pie_piece\" width=\""+canvas_width+"\" height=\""+canvas_height+"\"></canvas>");
+			
+
+			var angle_start = drawn/spec.total*2*Math.PI;
+			drawn += spec.pieces[i].get_value();
+			var angle_end = drawn/spec.total*2*Math.PI;
+
+			spec.pieces[i].set_angle(angle_start, angle_end);
+			spec.pieces[i].draw(spec.invert_color);
+			spec.invert_color = !spec.invert_color;
+
+		}
+
+	};
+
+
+	/*
+	 * Focus on the clicked piece 
+	 */
+	that.focus = function(angle) {
+		for(i in spec.pieces) {
+			if (spec.display != i) {
+				if (spec.pieces[i].contains(angle)) {
+					if (spec.display != null) {
+						spec.pieces[spec.display].unfocus();
+					}
+
+					spec.pieces[i].focus();
+					spec.display = i;
+					break;
+				}
+			}
+		}
+
+
+
+
+	};
+
+
+
+	return that;
+}
+
+
+/*
+ * A piece of a pie 
+ */
+piece = function(spec) {
+	spec.id = spec.value || "";
+	spec.value = spec.value || 0;
+	spec.angle_start = spec.angle_start || 0;
+	spec.angle_end = spec.angle_end || 0;
+	spec.color = spec.color || "";
+	spec.title = spec.title || "";
+	spec.information = spec.information || "";
+
+	var that = {};
+
+	that.set_id = function(id) {
+		spec.id = id;
+	};
+	that.get_id = function() {
+		return spec.id;
+	};
+
+
+	that.set_value = function(value) {
+		spec.value = value;
+	};
+	that.get_value = function() {
+		return spec.value;
+	};
+
+	that.set_angle = function(angle_start, angle_end) {
+		spec.angle_start = angle_start;
+		spec.angle_end = angle_end;
+	};
+
+	that.set_title = function(title) {
+		spec.title = title;
+	};
+	that.get_title = function(title) {
+		return spec.title;
+	};
+
+
+	that.set_information = function(information) {
+		spec.information = information;
+	};
+	that.get_information = function() {
+		return spec.information;
+	};
+
+
+	that.contains = function(angle) {
+		if ((spec.angle_start <= angle) && (angle <= spec.angle_end)) { //wide so we don't miss click
+			return true;
+		}
+		return false;
+	}
+
+
+	that.draw = function(invert_color) {
+
+		var ctx = document.getElementById("canvas_"+spec.id).getContext("2d");
+
+		var color = spec.color;
+		if (color == "") {
+			if (invert_color) {
+				angle = ((spec.angle_end+spec.angle_start)/2)/(2*Math.PI); // "normal" color
+				//angle = ((spec.angle_end+spec.angle_start)/2)/(2*Math.PI)-2/3; // High contrast colors
+				//angle = Math.random(); //Random colors
+				if (angle <0) {
+					angle += 1;
+				}
+				color = convert_to_color(angle);
+	
+			}
+			else {
+				color = convert_to_color(((spec.angle_end+spec.angle_start)/2)/(2*Math.PI));
+			}
+		}
+		ctx.fillStyle = color;
+		ctx.strokeStyle = color;
+
+
+
+		ctx.beginPath();
+		ctx.moveTo(center_x, center_y);
+		ctx.lineTo(center_x+radius*Math.cos(spec.angle_start), center_y+radius*Math.sin(spec.angle_start));
+		ctx.arc(center_x, center_y, radius, spec.angle_start, spec.angle_end, false)
+
+
+		ctx.lineTo(center_x, center_y);
+		ctx.fill();
+		ctx.stroke();
+
+	};
+
+
+	
+	that.unfocus = function() {
+		$("#canvas_"+spec.id).animate({
+			"margin-left": "-="+Math.floor(slide*Math.cos((spec.angle_end+spec.angle_start)/2)),
+			"margin-top": "-="+Math.floor(slide*Math.sin((spec.angle_end+spec.angle_start)/2))
+		}, 
+		200,
+		function() {
+			// to avoid floor/ceil error
+			$("#canvas_"+spec.id).css("margin-left", default_margin_left+"px"); // make sure it's in the good position
+			$("#canvas_"+spec.id).css("margin-top", default_margin_top+"px");
+		});
+	};
+
+	that.focus = function() {
+		$("#canvas_"+spec.id).css("margin-left", default_margin_left+"px"); // make sure it's in the good position
+		$("#canvas_"+spec.id).css("margin-top", default_margin_top+"px");
+
+		$("#canvas_"+spec.id).animate({
+			"margin-left": "+="+Math.floor(slide*Math.cos((spec.angle_end+spec.angle_start)/2)),
+			"margin-top": "+="+Math.floor(slide*Math.sin((spec.angle_end+spec.angle_start)/2))
+			},
+			200
+		);
+
+		$("#element_title").css("opacity", 1).stop().fadeOut(function() {
+			$(this).html(spec.title).fadeIn();
+		});
+		$("#element_content").css("opacity", 1).stop().fadeOut(function() {
+			$(this).html(spec.information).fadeIn();
+		});
+
+	};
+
+
+
+
+
+	return that;
+}
+
+
+
+var main_pie_chart = pie_chart({});
+var next_id = 0;
+
+$(window).ready( function() {
+	var test = [10,10,10,15,20,20,20,20];
+	//test = [10,40,80];
+	for(var i=0; i<test.length; i++) {
+		var new_piece = piece({});
+		new_piece.set_id(next_id);
+		next_id += 1;
+		new_piece.set_value(test[i]);
+		new_piece.set_title("Title for piece "+(i+1));
+		new_piece.set_information("<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam egestas congue turpis eget imperdiet. Morbi pulvinar mollis dolor, nec convallis mauris molestie sed. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis erat velit, vehicula ut consectetur non, semper blandit sem. Suspendisse potenti. Aenean sodales mollis turpis quis euismod. Pellentesque ornare mauris vel sem aliquet venenatis. Curabitur ac eros id neque tincidunt viverra. Duis nunc tellus, dignissim sit amet elementum id, sollicitudin sed enim. Morbi tempor rutrum massa. Curabitur pulvinar velit quis elit tempus vel vestibulum risus vulputate. Nullam in velit eget nulla lacinia aliquet. Proin mauris turpis, commodo non faucibus sed, convallis a lorem.</p>");
+
+		main_pie_chart.add_piece(new_piece);
+
+	}
+
+	main_pie_chart.draw();
+	main_pie_chart.focus(6.27);
+
+	$("#select").click(function(event) {
+		var x = event.pageX-$(this).offset().left-center_x;
+		var y = event.pageY-$(this).offset().top-center_y;
+		
+		var angle;
+		if (x>0) {
+			angle = Math.atan(y/x);
+		}
+		else if (x<0) {
+			angle = Math.PI+-Math.atan(-y/x);
+		}
+		else {
+			if (y>0) {
+				angle = Math.PI/2
+			}
+			else {
+				angle = -Math.PI/2
+			}
+		}
+		
+		if (angle<0) {
+			angle += Math.PI*2;
+		}		
+
+		main_pie_chart.focus(angle);
+
+	});
+});
+
