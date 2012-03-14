@@ -249,8 +249,9 @@ piece = function(spec) {
 				color = convert_to_color(((spec.angle_end+spec.angle_start)/2)/(2*Math.PI));
 			}
 		}
-		ctx.fillStyle = color;
-		ctx.strokeStyle = color;
+
+		ctx.fillStyle = "#"+color;
+		ctx.strokeStyle = "#"+color;
 
 
 
